@@ -23,16 +23,16 @@ Place this directory in your plugins dir:
 
     git submodule add git://github.com/danielbcorreia/CakePHP-OAuth2-Server-Plugin.git ./app/Plugin/OAuth2Server/
 
-Download the latest version of Tim Ridgley's oauth2-php into `./app/Plugin/OAuth2Server/Vendors/oauth2-php/`, as well:
+Download the latest version of Tim Ridgley's oauth2-php into `./app/Plugin/OAuth2Server/Vendors/oauth2-php/`, from:
 
-    git submodule update --init --recursive
+    http://code.google.com/p/oauth2-php/
 
 Add this line to your ./app/config/routes.php:
 
     // include CakePHP-OAuth2-Server-Plugin routes
     require_once App::pluginPath('OAuth2Server') .'config'. DS .'routes.php';
 
-Run this plugin's migrations (requires CakePHP Migrations plugin by CakeDC)
+Run this plugin's migrations (requires CakePHP Migrations plugin by CakeDC) - Branch 2.0
 
     cake migration -plugin OAuth2Server
 
