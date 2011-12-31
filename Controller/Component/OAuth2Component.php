@@ -3,22 +3,27 @@ class OAuth2Component extends Component {
 	/**
 	 * Persistent reference to controller invoking this component.
 	 */
-	var $controller;
+	var $controller; 
 
 	/**
 	 * initialize() callback.
 	 * The initialize method is called before the controller's beforeFilter method.
 	 */
 	function initialize(&$controller, $settings = array()) {
+		
 		$this->controller = &$controller;
 
 		// include customized version of third-party class
 		App::import('Lib', 'OAuth2Server.OAuth2Lib');
+		
 		$controller->OAuth2Lib = new OAuth2Lib(
-			Configure::read('OAuth2Server.access_token_lifetime'),
-			Configure::read('OAuth2Server.auth_code_lifetime'),
-			Configure::read('OAuth2Server.refresh_token_lifetime')
+			array(
+				Configure::read('OAuth2Server.access_token_lifetime'),
+				Configure::read('OAuth2Server.auth_code_lifetime'),
+				Configure::read('OAuth2Server.refresh_token_lifetime')
+			)
 		);
+		
 		$controller->OAuth2Lib->controller = &$this->controller; // provide reference to OauthController object
 
 		if (method_exists($controller, 'isAuthorized')) {
@@ -28,16 +33,16 @@ class OAuth2Component extends Component {
 					return true;
 					break;
 				case $valid === false: // assume invalid
-					$controller->OAuth2Lib->send_401_unauthorized($realm = null, $scope = null, ERROR_INVALID_TOKEN);
+					$controller->OAuth2Lib->send401Unauthorized($realm = null, $scope = null, ERROR_INVALID_TOKEN);
 					break;
 				default:
 				case $valid === null: // check normally
-					$controller->OAuth2Lib->verify_access_token();
+					$controller->OAuth2Lib->verifyAccessToken();
 					break;
 			}
 		}
 		else { // check normally
-			$controller->OAuth2Lib->verify_access_token();
+			$controller->OAuth2Lib->verifyAccessToken();
 		}
 	}
 
@@ -49,7 +54,7 @@ class OAuth2Component extends Component {
 	 * @return Mixed Requested data from User object.
 	 */
 	function user($field) {
-		return $this->controller->OAuth2Lib->get_token_user($field);
+		return $this->controller->OAuth2Lib->getTokenUser($field);
 	}
 
 	/**
@@ -58,7 +63,7 @@ class OAuth2Component extends Component {
 	 * @return String access_token
 	 */
 	function token() {
-		return $this->controller->OAuth2Lib->get_token();
+		return $this->controller->OAuth2Lib->getToken();
 	}
 
 	/**

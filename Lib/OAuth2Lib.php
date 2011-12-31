@@ -1,11 +1,11 @@
 <?php
-
 // include plugin configuration
 Configure::load('OAuth2Server.config');
 
 // include Tim Ridgeley's class
 if (App::import('Vendor', 'OAuth2Server.OAuth2', array('file' => 'oauth2-php'. DS .'lib'. DS .'OAuth2.inc'))===false) 
 {	
+	// TODO remove
 	throw new ConfigureException("shit...");
 }
 
@@ -36,7 +36,7 @@ class OAuth2Lib extends OAuth2 {
 	 * If a secret is required, check that they've given the right one
 	 * Must return false if the client credentials are invalid
 	 */
-	public function auth_client_credentials($client_id, $client_secret = null) {
+	public function checkClientCredentials($client_id, $client_secret = null) {
 		$this->loadModel('OAuth2Server.OAuth2ServerClient');
 		return (boolean) $this->OAuth2ServerClient->field('id', array(
 			'id' => $client_id,
@@ -49,7 +49,7 @@ class OAuth2Lib extends OAuth2 {
 	 * Implement this function to grab the stored URI for a given client id
 	 * Must return false if the given client does not exist or is invalid
 	 */
-	protected function get_redirect_uri($client_id) {
+	protected function getRedirectUri($client_id) {
 		$this->loadModel('OAuth2Server.OAuth2ServerClient');
 		return $this->OAuth2ServerClient->field('redirect_uri', array(
 			'id' => $client_id
@@ -60,7 +60,7 @@ class OAuth2Lib extends OAuth2 {
 	 * We need to store and retrieve access token data as we create and verify tokens
 	 * Look up the supplied token id from storage, and return an array like:
 	 */
-	protected function get_access_token($oauth_token) {
+	protected function getAccessToken($oauth_token) {
 		// cache this request because it can get called a lot
 		static $tokens = array();
 		if (isset($tokens[$oauth_token])) {
@@ -91,8 +91,9 @@ class OAuth2Lib extends OAuth2 {
 	/**
 	 * Store the supplied values
 	 */
-	protected function store_access_token($oauth_token, $client_id, $expires, $scope = null, $username = null) {
+	protected function setAccessToken($oauth_token, $client_id, $expires, $scope = null, $username = null) {
 		$this->loadModel('OAuth2Server.OAuth2ServerToken');
+		
 		$data = array(
 			'token' => $oauth_token,
 			'client_id' => $client_id,
@@ -100,9 +101,11 @@ class OAuth2Lib extends OAuth2 {
 			'scope' => $scope,
 			'username' => $username
 		);
+		
 		if (isset($_REQUEST['device_id'])) {
 			$data['device_id'] = &$_REQUEST['device_id'];
 		}
+		
 		$this->OAuth2ServerToken->save($data, true, array(
 			'token',
 			'client_id',
@@ -116,46 +119,46 @@ class OAuth2Lib extends OAuth2 {
 	/**
 	 *
 	 */
-	protected function get_supported_grant_types() {
+	protected function getSupportedGrantTypes() {
 		return array(
-		AUTH_CODE_GRANT_TYPE,
-		USER_CREDENTIALS_GRANT_TYPE,
-		CLIENT_CREDENTIALS_GRANT_TYPE,
-		//ASSERTION_GRANT_TYPE,
-		REFRESH_TOKEN_GRANT_TYPE,
-		//NONE_GRANT_TYPE
+			AUTH_CODE_GRANT_TYPE,
+			USER_CREDENTIALS_GRANT_TYPE,
+			CLIENT_CREDENTIALS_GRANT_TYPE,
+			//ASSERTION_GRANT_TYPE,
+			REFRESH_TOKEN_GRANT_TYPE,
+			//NONE_GRANT_TYPE
 		);
 	}
 
 	/**
 	 *
 	 */
-	protected function get_supported_auth_response_types() {
+	protected function getSupportedAuthResponseTypes() {
 		return array(
-		AUTH_CODE_AUTH_RESPONSE_TYPE,
-		ACCESS_TOKEN_AUTH_RESPONSE_TYPE,
-		CODE_AND_TOKEN_AUTH_RESPONSE_TYPE
+			AUTH_CODE_AUTH_RESPONSE_TYPE,
+			ACCESS_TOKEN_AUTH_RESPONSE_TYPE,
+			CODE_AND_TOKEN_AUTH_RESPONSE_TYPE
 		);
 	}
 
 	/**
 	 *
 	 */
-	protected function get_supported_scopes() {
+	protected function getSupportedScopes() {
 		return array();
 	}
 
 	/**
 	 *
 	 */
-	protected function authorize_client_response_type($client_id, $response_type) {
+	protected function authorizeClientResponseType($client_id, $response_type) {
 		return true;
 	}
 
 	/**
 	 *
 	 */
-	protected function authorize_client($client_id, $grant_type) {
+	protected function authorizeClient($client_id, $grant_type) {
 		return true;
 	}
 
@@ -166,7 +169,7 @@ class OAuth2Lib extends OAuth2 {
 	 * IETF Draft 4.1.1: http://tools.ietf.org/html/draft-ietf-oauth-v2-08#section-4.1.1
 	 * Required for AUTH_CODE_GRANT_TYPE
 	 */
-	protected function get_stored_auth_code($code) {
+	protected function getStoredAuthCode($code) {
 		$this->loadModel('OAuth2Server.OAuth2ServerCode');
 		$result = $this->OAuth2ServerCode->find('first', array(
 			'fields' => array(
@@ -198,7 +201,7 @@ class OAuth2Lib extends OAuth2 {
 	 * Take the provided authorization code values and store them somewhere (db, etc.)
 	 * Required for AUTH_CODE_GRANT_TYPE
 	 */
-	protected function store_auth_code($code, $client_id, $redirect_uri, $expires, $scope = null) {
+	protected function storeAuthCode($code, $client_id, $redirect_uri, $expires, $scope = null) {
 		$this->loadModel('OAuth2Server.OAuth2ServerCode');
 		$this->OAuth2ServerCode->save(array(
 			'access_code' => $code,
@@ -214,7 +217,7 @@ class OAuth2Lib extends OAuth2 {
 	 * IETF Draft 4.1.2: http://tools.ietf.org/html/draft-ietf-oauth-v2-08#section-4.1.2
 	 * Required for USER_CREDENTIALS_GRANT_TYPE
 	 */
-	public function check_user_credentials($client_id, $username, $password) {
+	public function checkUserCredentials($client_id, $username, $password) {
 		if (
 			   !empty($username)
 			&& !empty($password)
@@ -238,18 +241,18 @@ class OAuth2Lib extends OAuth2 {
 	 * IETF Draft 4.1.4: http://tools.ietf.org/html/draft-ietf-oauth-v2-08#section-4.1.4
 	 * Required for REFRESH_TOKEN_GRANT_TYPE
 	 */
-	protected function get_refresh_token($refresh_token) {
+	protected function getRefreshToken($refresh_token) {
 		// for now, we're storing these in the same way as access tokens
-		return $this->get_access_token($refresh_token);
+		return $this->getAccessToken($refresh_token);
 	}
 
 	/**
 	 * Store refresh access tokens
 	 * Required for REFRESH_TOKEN_GRANT_TYPE
 	 */
-	protected function store_refresh_token($token, $client_id, $expires, $scope = null, $username = null) {
+	protected function storeRefreshToken($token, $client_id, $expires, $scope = null, $username = null) {
 		// for now, we're storing these in the same way as access tokens
-		return $this->store_access_token($token, $client_id, $expires, $scope, $username); // @TODO: infer username from previous token
+		return $this->storeAccessToken($token, $client_id, $expires, $scope, $username); // @TODO: infer username from previous token
 	}
 
 	/**
@@ -257,7 +260,7 @@ class OAuth2Lib extends OAuth2 {
 	 * This is not explicitly required in the spec, but is almost implied. After granting a new refresh token,
 	 * the old one is no longer useful and so should be forcibly expired in the data store so it can't be used again.
 	 */
-	public function expire_refresh_token($token) {
+	public function expireRefreshToken($token) {
 		$this->loadModel('OAuth2Server.OAuth2ServerToken');
 		$this->OAuth2ServerToken->delete($token) or die('failed to expire refresh token.');
 	}
@@ -265,7 +268,7 @@ class OAuth2Lib extends OAuth2 {
 	/**
 	 *
 	 */
-	protected function get_default_authentication_realm() {
+	protected function getDefaultAuthenticationRealm() {
 		return 'API Server';
 	}
 
@@ -275,8 +278,8 @@ class OAuth2Lib extends OAuth2 {
 	 *
 	 * @return Array Token record.
 	 */
-	public function get_token() {
-		$token_param = $this->get_access_token_param();
+	public function getToken() {
+		$token_param = $this->getAccessTokenParam();
 		return $this->get_access_token($token_param);
 	}
 
@@ -286,8 +289,8 @@ class OAuth2Lib extends OAuth2 {
 	 *
 	 * @return Array User record.
 	 */
-	public function get_token_user($field) {
-		$token = $this->get_token();
+	public function getTokenUser($field) {
+		$token = $this->getToken();
 		if ($token !== null && !empty($token['username'])) {
 			$this->loadModel('User');
 			return $this->User->field($field, array(
