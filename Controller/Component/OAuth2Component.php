@@ -79,7 +79,7 @@ class OAuth2Component extends Component {
 		static $current_user_id = null;
 		if (empty($_REQUEST['access_token'])) { // validate
 			if ($throwExceptionOnFail) {
-				throw new Exception(__('Missing access_token.', true));
+				throw new Exception(__('Missing access_token.'));
 			}
 			return false;
 		}
@@ -92,7 +92,7 @@ class OAuth2Component extends Component {
 			}
 		}
 		if ($throwExceptionOnFail) {
-			throw new Exception(__('Invalid, expired, or underprivileged access_token.', true));
+			throw new Exception(__('Invalid, expired, or underprivileged access_token.'));
 			return false;
 		}
 	}

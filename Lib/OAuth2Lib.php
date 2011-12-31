@@ -3,11 +3,7 @@
 Configure::load('OAuth2Server.config');
 
 // include Tim Ridgeley's class
-if (App::import('Vendor', 'OAuth2Server.OAuth2', array('file' => 'oauth2-php'. DS .'lib'. DS .'OAuth2.inc'))===false) 
-{	
-	// TODO remove
-	throw new ConfigureException("shit...");
-}
+App::import('Vendor', 'OAuth2Server.OAuth2', array('file' => 'oauth2-php'. DS .'lib'. DS .'OAuth2.inc'));
 
 // extend with overloaded customizations
 class OAuth2Lib extends OAuth2 {
