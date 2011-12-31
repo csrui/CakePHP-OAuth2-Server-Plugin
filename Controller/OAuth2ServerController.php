@@ -17,7 +17,7 @@ class OAuth2ServerController extends OAuth2ServerAppController {
 	 */
 	public function access_token() {
 		try {
-			$this->OAuth2Lib->grant_access_token();
+			$this->OAuth2Lib->grantAccessToken();
 		} catch(Exception $e) {
 			$this->fail($e);
 		}

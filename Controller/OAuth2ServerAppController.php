@@ -1,9 +1,12 @@
 <?php
+App::uses('AppController', 'Controller');
+App::uses('AuthComponent', 'Controller/Component');
+
 // include plugin configuration
 Configure::load('OAuth2Server.config');
 
 class OAuth2ServerAppController extends AppController {
-	var $components = array('OAuth2');
+	var $components = array('OAuth2Server.OAuth2', 'Auth');
 	var $helpers = array();
 
 	/**
@@ -11,7 +14,7 @@ class OAuth2ServerAppController extends AppController {
 	 */
 	function __construct() {
 		parent::__construct();
-		$this->components[] = Configure::read('OAuth2Server.Auth.className');
+		//$this->components[] = Configure::read('OAuth2Server.Auth.className');
 	}
 
 	/**
@@ -19,8 +22,8 @@ class OAuth2ServerAppController extends AppController {
 	 * Configure Auth component.
 	 */
 	function beforeFilter() {
-		$Auth = Configure::read('OAuth2Server.Auth.className');
-		$this->$Auth->deny('*');
+		//$Auth = Configure::read('OAuth2Server.Auth.className');
+		$this->Auth->deny('*');
 
 		foreach (array_merge(array(
 			'loginAction' => array(
@@ -33,7 +36,7 @@ class OAuth2ServerAppController extends AppController {
 			'authorize' => 'controller',
 			'allowedActions' => array('login', 'authorize', 'access_token')
 		), Configure::read('OAuth2Server.Auth')) as $k => $v) {
-			$this->$Auth->{$k} = $v;
+			$this->Auth->{$k} = $v;
 		}
 
 		return parent::beforeFilter(); // bubble up
