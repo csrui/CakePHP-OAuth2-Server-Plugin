@@ -1,6 +1,5 @@
 <?php
-
-class OAuth2Component extends Object {
+class OAuth2Component extends Component {
 	/**
 	 * Persistent reference to controller invoking this component.
 	 */

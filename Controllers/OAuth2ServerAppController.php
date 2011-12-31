@@ -1,5 +1,4 @@
 <?php
-
 // include plugin configuration
 Configure::load('OAuth2Server.config');
 

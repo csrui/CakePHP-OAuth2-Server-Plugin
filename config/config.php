@@ -1,5 +1,4 @@
 <?php
-
 $config['OAuth2Server'] = array(
 	'access_token_lifetime'		=> 60*60*12, // 12 hours
 	'auth_code_lifetime' 		=> 60*60*12, // 12 hours

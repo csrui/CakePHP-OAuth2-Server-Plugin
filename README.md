@@ -1,3 +1,9 @@
+Ported to CakePHP 2.0 Conventions by Daniel Correia
+============
+
+Original README contents (with a few changes):
+
+
 CakePHP OAuth2 Server Plugin by Mike Smullin <mike@smullindesign.com>
 ============
 
@@ -15,9 +21,9 @@ Installation & Usage
 
 Place this directory in your plugins dir:
 
-    git submodule add git://github.com/mikesmullin/CakePHP-OAuth2-Server-Plugin.git ./app/plugins/o_auth2_server/
+    git submodule add git://github.com/danielbcorreia/CakePHP-OAuth2-Server-Plugin.git ./app/Plugin/OAuth2Server/
 
-Download the latest version of Tim Ridgley's oauth2-php into `./app/plugins/oauth/vendors/oauth2-php/`, as well:
+Download the latest version of Tim Ridgley's oauth2-php into `./app/Plugin/OAuth2Server/Vendors/oauth2-php/`, as well:
 
     git submodule update --init --recursive
 
@@ -30,7 +36,7 @@ Run this plugin's migrations (requires CakePHP Migrations plugin by CakeDC)
 
     cake migration -plugin OAuth2Server
 
-Customize the file `./app/plugins/oauth/config/oauth.php` to fit your use case.
+Customize the file `./app/Plugin/OAuth2Server/Config/oauth.php` to fit your use case.
 
 Add this plugin's OAuth2 component to your AppController:
 
