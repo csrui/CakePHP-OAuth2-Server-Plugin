@@ -1225,6 +1225,8 @@ abstract class OAuth2 {
    * @ingroup oauth2_section_3
    */
   public function finishClientAuthorization($is_authorized, $params = array()) {
+  	$result = array();
+  	
     $params += array(
       'scope' => NULL,
       'state' => NULL,

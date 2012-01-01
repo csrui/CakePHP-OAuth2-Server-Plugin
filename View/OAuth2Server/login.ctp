@@ -1,7 +1,6 @@
 <?php
-
 echo
-	$this->Form->create(null, array('type' => 'POST', 'url' => '/oauth/authorize')) .
+	$this->Form->create(false, array('type' => 'POST', 'url' => '/oauth/authorize')) .
 	$this->Form->inputs(array(
 		'legend' => __('User login'),
 		'client_id' => array(
@@ -45,5 +44,4 @@ echo
 			'label' => __('Password:'),
 		)
 	)) .
-	$this->Form->end(__('Login'))
-	;
+	$this->Form->end(__('Login'));

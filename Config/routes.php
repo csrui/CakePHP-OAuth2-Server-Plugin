@@ -26,6 +26,6 @@ Router::connect('/oauth/access_token',
 		'plugin' => 'OAuth2Server', 
 		'controller' => 'OAuth2Server', 
 		'action' => 'access_token', 
-		'[method]' => 'POST'
+		//'[method]' => 'POST'
 	)
 );

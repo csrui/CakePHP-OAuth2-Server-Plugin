@@ -1,18 +1,24 @@
 <?php
+App::uses('AppController', 'Controller');
 
 // include plugin configuration
 Configure::load('OAuth2Server.config');
 
 class OAuth2ServerAppController extends AppController {
-	var $components = array('OAuth2Server.OAuth2', 'Auth');
-	var $helpers = array();
+	
+	public $components = array('OAuth2Server.OAuth2');
+	public $helpers = array();
+	
+	private $authComponent = 'Auth';
 
 	/**
 	 * Dynamically set Auth component.
 	 */
-	function __construct() {
-		parent::__construct();
-		$this->components[] = Configure::read('OAuth2Server.Auth.className');
+	public function __construct($request = null, $response = null) {
+		parent::__construct($request, $response);
+		
+		$this->authComponent = Configure::read('OAuth2Server.Auth.className');
+		$this->components[] = $this->authComponent;
 	}
 
 	/**
@@ -20,7 +26,7 @@ class OAuth2ServerAppController extends AppController {
 	 * Configure Auth component.
 	 */
 	function beforeFilter() {
-		$Auth = Configure::read('OAuth2Server.Auth.className');
+		$Auth = $this->authComponent;
 		$this->$Auth->deny('*');
 
 		foreach (array_merge(array(

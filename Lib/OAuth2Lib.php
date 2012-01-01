@@ -10,7 +10,7 @@ class OAuth2Lib extends OAuth2 {
 	/**
 	 * Persistent reference to controller invoking this component.
 	 */
-	var $controller;
+	public $controller;
 
 	/**
 	 * Load a model for use within this object.
@@ -26,7 +26,7 @@ class OAuth2Lib extends OAuth2 {
 		App::import('Model', $plugin . $name);
 		$this->{$name} = new $name();
 	}
-
+	
 	/**
 	 * Make sure that the client id is valid
 	 * If a secret is required, check that they've given the right one
@@ -76,12 +76,11 @@ class OAuth2Lib extends OAuth2 {
 				'token' => $oauth_token
 			)
 		));
+		
 		if ($result) {
 			return $tokens[$oauth_token] = $result['OAuth2ServerToken'];
 		}
-		else {
-			return null;
-		}
+		return null;
 	}
 
 	/**
@@ -219,15 +218,18 @@ class OAuth2Lib extends OAuth2 {
 			&& !empty($password)
 		) {
 			// use CakePHP Auth Component to validate user credentials
-			$Auth = Configure::read('OAuth2Server.Auth.className');
+			$Auth = self::one(Configure::read('OAuth2Server.Auth.className'));
+
 			$data = array(
-				Configure::read('OAuth2Server.Auth.fields.username') => $username,
-				Configure::read('OAuth2Server.Auth.fields.password') => $password
+				self::one(Configure::read('OAuth2Server.Auth.fields.username')) => $username,
+				self::one(Configure::read('OAuth2Server.Auth.fields.password')) => $password
 			);
-			if ($Auth == 'Auth') { // only pre-hash passwords for original Auth component
+			
+			/*if ($Auth == 'Auth') { // only pre-hash passwords for original Auth component
 				$data = $this->controller->$Auth->hashPasswords($data);
-			}
-			return (boolean) $this->controller->$Auth->identify($data);
+			}*/
+			
+			return (boolean) $this->controller->$Auth->login($data);
 		}
 		return false;
 	}
@@ -276,7 +278,7 @@ class OAuth2Lib extends OAuth2 {
 	 */
 	public function getToken() {
 		$token_param = $this->getAccessTokenParam();
-		return $this->get_access_token($token_param);
+		return $this->getAccessToken($token_param);
 	}
 
 	/**
@@ -294,4 +296,8 @@ class OAuth2Lib extends OAuth2 {
 			));
 		}
 	}
+	
+	private static function one($mixed) {
+		return is_array($mixed) ? $mixed[0] : $mixed;
+	} 
 }

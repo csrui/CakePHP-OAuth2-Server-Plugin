@@ -1,7 +1,5 @@
 <?php
 class OAuth2ServerController extends OAuth2ServerAppController {
-	
-	public $uses = array();
 
 	/**
 	 * isAuthorized() callback.
@@ -17,7 +15,9 @@ class OAuth2ServerController extends OAuth2ServerAppController {
 	 */
 	public function access_token() {
 		try {
-			$this->OAuth2Lib->grantAccessToken();
+			if ($this->request->is('post')) {
+				$this->OAuth2Lib->grantAccessToken();
+			}
 		} catch(Exception $e) {
 			$this->fail($e);
 		}
@@ -37,14 +37,23 @@ class OAuth2ServerController extends OAuth2ServerAppController {
 	 */
 	public function authorize() {
 		try {
-			$this->OAuth2Lib->finish_client_authorization(
-				(boolean) $this->OAuth2Lib->check_user_credentials($this->params['form']['client_id'], $this->params['form']['username'], $this->params['form']['password']),
-				$this->params['form']['response_type'],
-				$this->params['form']['client_id'],
-				$this->params['form']['redirect_uri'],
-				$this->params['form']['state'],
-				$this->params['form']['scope'],
-				$this->params['form']['username']
+			$authenticationStatus = $this->OAuth2Lib->checkUserCredentials(
+										$this->data['client_id'], 
+										$this->data['username'], 
+										$this->data['password']
+									);
+			//debug($authenticationStatus);
+
+			$this->OAuth2Lib->finishClientAuthorization(
+				(boolean) $authenticationStatus,
+				array(
+					'response_type' => $this->params['form']['response_type'],
+					'client_id' => $this->params['form']['client_id'],
+					'redirect_uri' => $this->params['form']['redirect_uri'],
+					'state' => $this->params['form']['state'],
+					'scope' => $this->params['form']['scope'],
+					'username' => $this->params['form']['username']
+				)
 			);
 		} catch(Exception $e) {
 			$this->fail($e);

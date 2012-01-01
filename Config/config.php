@@ -6,6 +6,7 @@ $config['OAuth2Server'] = array(
 
 	'Auth' => array(
 		'className' => 'Auth',
+		'otherClassName' => 'Auth',
 		'fields' => array(
 			'username' => 'email',
 			'password' => 'password'
