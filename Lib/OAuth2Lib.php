@@ -13,28 +13,12 @@ class OAuth2Lib extends OAuth2 {
 	public $controller;
 
 	/**
-	 * Load a model for use within this object.
-	 *
-	 * @param String $name Model name
-	 */
-	private function loadModel($name) {
-		$plugin = '';
-		if (strstr($name, '.')) { // plugin
-			list($plugin, $name) = explode('.', $name);
-			$plugin .= '.';
-		}
-		App::import('Model', $plugin . $name);
-		$this->{$name} = new $name();
-	}
-	
-	/**
 	 * Make sure that the client id is valid
 	 * If a secret is required, check that they've given the right one
 	 * Must return false if the client credentials are invalid
 	 */
 	public function checkClientCredentials($client_id, $client_secret = null) {
-		$this->loadModel('OAuth2Server.OAuth2ServerClient');
-		return (boolean) $this->OAuth2ServerClient->field('id', array(
+		return (boolean) $this->controller->OAuth2ServerClient->field('id', array(
 			'id' => $client_id,
 			'secret' => $client_secret
 		));
@@ -46,8 +30,7 @@ class OAuth2Lib extends OAuth2 {
 	 * Must return false if the given client does not exist or is invalid
 	 */
 	protected function getRedirectUri($client_id) {
-		$this->loadModel('OAuth2Server.OAuth2ServerClient');
-		return $this->OAuth2ServerClient->field('redirect_uri', array(
+		return $this->controller->OAuth2ServerClient->field('redirect_uri', array(
 			'id' => $client_id
 		));
 	}
@@ -63,8 +46,7 @@ class OAuth2Lib extends OAuth2 {
 			return $tokens[$oauth_token];
 		}
 
-		$this->loadModel('OAuth2Server.OAuth2ServerToken');
-		$result = $this->OAuth2ServerToken->find('first', array(
+		$result = $this->controller->OAuth2ServerToken->find('first', array(
 			'fields' => array(
 				'token',
 				'client_id',
@@ -87,8 +69,6 @@ class OAuth2Lib extends OAuth2 {
 	 * Store the supplied values
 	 */
 	protected function setAccessToken($oauth_token, $client_id, $expires, $scope = null, $username = null) {
-		$this->loadModel('OAuth2Server.OAuth2ServerToken');
-		
 		$data = array(
 			'token' => $oauth_token,
 			'client_id' => $client_id,
@@ -101,7 +81,7 @@ class OAuth2Lib extends OAuth2 {
 			$data['device_id'] = &$_REQUEST['device_id'];
 		}
 		
-		$this->OAuth2ServerToken->save($data, true, array(
+		$this->controller->OAuth2ServerToken->save($data, true, array(
 			'token',
 			'client_id',
 			'expires',
@@ -165,8 +145,8 @@ class OAuth2Lib extends OAuth2 {
 	 * Required for AUTH_CODE_GRANT_TYPE
 	 */
 	protected function getStoredAuthCode($code) {
-		$this->loadModel('OAuth2Server.OAuth2ServerCode');
-		$result = $this->OAuth2ServerCode->find('first', array(
+
+		$result = $this->controller->OAuth2ServerCode->find('first', array(
 			'fields' => array(
 				'access_code',
 				'client_id',
@@ -197,8 +177,8 @@ class OAuth2Lib extends OAuth2 {
 	 * Required for AUTH_CODE_GRANT_TYPE
 	 */
 	protected function storeAuthCode($code, $client_id, $redirect_uri, $expires, $scope = null) {
-		$this->loadModel('OAuth2Server.OAuth2ServerCode');
-		$this->OAuth2ServerCode->save(array(
+
+		$this->controller->OAuth2ServerCode->save(array(
 			'access_code' => $code,
 			'client_id' => $client_id,
 			'redirect_uri' => $redirect_uri,
@@ -259,8 +239,8 @@ class OAuth2Lib extends OAuth2 {
 	 * the old one is no longer useful and so should be forcibly expired in the data store so it can't be used again.
 	 */
 	public function expireRefreshToken($token) {
-		$this->loadModel('OAuth2Server.OAuth2ServerToken');
-		$this->OAuth2ServerToken->delete($token) or die('failed to expire refresh token.');
+
+		$this->controller->OAuth2ServerToken->delete($token) or die('failed to expire refresh token.');
 	}
 
 	/**
@@ -290,6 +270,8 @@ class OAuth2Lib extends OAuth2 {
 	public function getTokenUser($field) {
 		$token = $this->getToken();
 		if ($token !== null && !empty($token['username'])) {
+
+			throw new Exception("Function still relies in absolete method loadModel", 1);
 			$this->loadModel('User');
 			return $this->User->field($field, array(
 			  Configure::read('OAuth2Server.Auth.fields.username') => $token['username']

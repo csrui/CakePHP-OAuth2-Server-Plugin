@@ -1,6 +1,12 @@
 <?php
 class OAuth2ServerController extends OAuth2ServerAppController {
 
+	public $uses = array(
+		'OAuth2Server.OAuth2ServerClient',
+		'OAuth2Server.OAuth2ServerCode',
+		'OAuth2Server.OAuth2ServerToken'
+	);
+
 	/**
 	 * isAuthorized() callback.
 	 * Allow anonymous access to all actions of this controller.
@@ -42,17 +48,16 @@ class OAuth2ServerController extends OAuth2ServerAppController {
 										$this->data['username'], 
 										$this->data['password']
 									);
-			//debug($authenticationStatus);
-
+									
 			$this->OAuth2Lib->finishClientAuthorization(
 				(boolean) $authenticationStatus,
 				array(
-					'response_type' => $this->params['form']['response_type'],
-					'client_id' => $this->params['form']['client_id'],
-					'redirect_uri' => $this->params['form']['redirect_uri'],
-					'state' => $this->params['form']['state'],
-					'scope' => $this->params['form']['scope'],
-					'username' => $this->params['form']['username']
+					'response_type' => $this->data['response_type'],
+					'client_id' => $this->data['client_id'],
+					'redirect_uri' => $this->data['redirect_uri'],
+					'state' => $this->data['state'],
+					'scope' => $this->data['scope'],
+					'username' => $this->data['username']
 				)
 			);
 		} catch(Exception $e) {

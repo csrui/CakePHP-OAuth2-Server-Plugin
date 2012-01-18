@@ -1,3 +1,5 @@
 .hg/
 *.swo
 *.swp
+
+.DS_Store
