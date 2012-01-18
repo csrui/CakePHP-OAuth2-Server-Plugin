@@ -1,7 +1,8 @@
 <?php
-class OAuth2ServerCode extends AppModel {
 
-	var $primaryKey = 'access_code';
+class OAuth2ServerToken extends AppModel {
+	var $name = 'OAuth2ServerToken';
+	var $primaryKey = 'token';
 
 	var $belongsTo = array(
 		'OAuth2ServerClient' => array(

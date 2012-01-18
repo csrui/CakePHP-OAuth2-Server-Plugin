@@ -1,48 +1,45 @@
 <?php
-class OAuth2Component extends Component {
+
+class OAuth2Component extends Object {
 	/**
 	 * Persistent reference to controller invoking this component.
 	 */
-	var $controller; 
+	var $controller;
 
 	/**
 	 * initialize() callback.
 	 * The initialize method is called before the controller's beforeFilter method.
 	 */
-	function initialize(&$controller, $settings = array()) {
-		
+	public function initialize(&$controller, $settings = array()) {
+
 		$this->controller = &$controller;
 
 		// include customized version of third-party class
 		App::import('Lib', 'OAuth2Server.OAuth2Lib');
-		
 		$controller->OAuth2Lib = new OAuth2Lib(
-			array(
-				Configure::read('OAuth2Server.access_token_lifetime'),
-				Configure::read('OAuth2Server.auth_code_lifetime'),
-				Configure::read('OAuth2Server.refresh_token_lifetime')
-			)
+			Configure::read('OAuth2Server.access_token_lifetime'),
+			Configure::read('OAuth2Server.auth_code_lifetime'),
+			Configure::read('OAuth2Server.refresh_token_lifetime')
 		);
-		
 		$controller->OAuth2Lib->controller = &$this->controller; // provide reference to OauthController object
 
 		if (method_exists($controller, 'isAuthorized')) {
-			$valid = $controller->isAuthorized();
+			$valid = $controller->isAuthorized();			
 			switch (true) {
 				case $valid === true: // assume valid
 					return true;
 					break;
 				case $valid === false: // assume invalid
-					$controller->OAuth2Lib->send401Unauthorized($realm = null, $scope = null, ERROR_INVALID_TOKEN);
+					$controller->OAuth2Lib->send_401_unauthorized($realm = null, $scope = null, ERROR_INVALID_TOKEN);
 					break;
 				default:
 				case $valid === null: // check normally
-					$controller->OAuth2Lib->verifyAccessToken();
+					$controller->OAuth2Lib->verify_access_token();
 					break;
 			}
 		}
 		else { // check normally
-			$controller->OAuth2Lib->verifyAccessToken();
+			$controller->OAuth2Lib->verify_access_token();
 		}
 	}
 
@@ -54,7 +51,7 @@ class OAuth2Component extends Component {
 	 * @return Mixed Requested data from User object.
 	 */
 	function user($field) {
-		return $this->controller->OAuth2Lib->getTokenUser($field);
+		return $this->controller->OAuth2Lib->get_token_user($field);
 	}
 
 	/**
@@ -63,7 +60,7 @@ class OAuth2Component extends Component {
 	 * @return String access_token
 	 */
 	function token() {
-		return $this->controller->OAuth2Lib->getToken();
+		return $this->controller->OAuth2Lib->get_token();
 	}
 
 	/**
@@ -75,11 +72,12 @@ class OAuth2Component extends Component {
 	 * @return Integer Current User.id
 	 */
 	function getCurrentUserId($throwExceptionOnFail = true) {
+		
 		// validate and cache to reduce db queries
 		static $current_user_id = null;
 		if (empty($_REQUEST['access_token'])) { // validate
 			if ($throwExceptionOnFail) {
-				throw new Exception(__('Missing access_token.'));
+				throw new Exception(__('Missing access_token.', true));
 			}
 			return false;
 		}
@@ -92,7 +90,7 @@ class OAuth2Component extends Component {
 			}
 		}
 		if ($throwExceptionOnFail) {
-			throw new Exception(__('Invalid, expired, or underprivileged access_token.'));
+			throw new Exception(__('Invalid, expired, or underprivileged access_token.', true));
 			return false;
 		}
 	}
