@@ -9,39 +9,40 @@ class OAuth2ServerAppController extends AppController {
 	public $components = array('OAuth2Server.OAuth2');
 	public $helpers = array();
 	
-	private $authComponent = 'Auth';
+	// private $authComponent = 'Auth';
 
 	/**
 	 * Dynamically set Auth component.
 	 */
-	public function __construct($request = null, $response = null) {
-		parent::__construct($request, $response);
-		
-		$this->authComponent = Configure::read('OAuth2Server.Auth.className');
-		$this->components[] = $this->authComponent;
-	}
+	// public function __construct($request = null, $response = null) {
+	// 	parent::__construct($request, $response);
+	// 	
+	// 	$this->authComponent = Configure::read('OAuth2Server.Auth.className');
+	// 	$this->components[] = $this->authComponent;
+	// }
 
 	/**
 	 * beforeFilter() callback.
 	 * Configure Auth component.
 	 */
 	function beforeFilter() {
-		$Auth = $this->authComponent;
-		$this->$Auth->deny('*');
+		// $Auth = $this->authComponent;
+		// $this->Auth->deny('*');
+		// $this->Auth->allow('login', 'authorize', 'access_token');
 
-		foreach (array_merge(array(
-			'loginAction' => array(
-				'plugin' => false,
-				'admin' => false,
-				'controller' => 'oauth',
-				'action' => 'login'
-			),
-			'autoRedirect' => false,
-			'authorize' => 'controller',
-			'allowedActions' => array('login', 'authorize', 'access_token')
-		), Configure::read('OAuth2Server.Auth')) as $k => $v) {
-			$this->$Auth->{$k} = $v;
-		}
+		// foreach (array_merge(array(
+		// 	'loginAction' => array(
+		// 		'plugin' => false,
+		// 		'admin' => false,
+		// 		'controller' => 'oauth',
+		// 		'action' => 'login'
+		// 	),
+		// 	'autoRedirect' => false,
+		// 	'authorize' => 'controller',
+		// 	'allowedActions' => array('login', 'authorize', 'access_token')
+		// ), Configure::read('OAuth2Server.Auth')) as $k => $v) {
+		// 	$this->$Auth->{$k} = $v;
+		// }
 
 		return parent::beforeFilter(); // bubble up
 	}

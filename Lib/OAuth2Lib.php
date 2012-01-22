@@ -96,11 +96,11 @@ class OAuth2Lib extends OAuth2 {
 	 */
 	protected function getSupportedGrantTypes() {
 		return array(
-			AUTH_CODE_GRANT_TYPE,
-			USER_CREDENTIALS_GRANT_TYPE,
+			OAUTH2_GRANT_TYPE_AUTH_CODE,
+			OAUTH2_GRANT_TYPE_USER_CREDENTIALS,
 			CLIENT_CREDENTIALS_GRANT_TYPE,
 			//ASSERTION_GRANT_TYPE,
-			REFRESH_TOKEN_GRANT_TYPE,
+			OAUTH2_GRANT_TYPE_REFRESH_TOKEN,
 			//NONE_GRANT_TYPE
 		);
 	}
@@ -193,25 +193,28 @@ class OAuth2Lib extends OAuth2 {
 	 * Required for USER_CREDENTIALS_GRANT_TYPE
 	 */
 	public function checkUserCredentials($client_id, $username, $password) {
-		if (
-			   !empty($username)
-			&& !empty($password)
-		) {
-			// use CakePHP Auth Component to validate user credentials
-			$Auth = self::one(Configure::read('OAuth2Server.Auth.className'));
 
-			$data = array(
-				self::one(Configure::read('OAuth2Server.Auth.fields.username')) => $username,
-				self::one(Configure::read('OAuth2Server.Auth.fields.password')) => $password
-			);
-			
-			/*if ($Auth == 'Auth') { // only pre-hash passwords for original Auth component
-				$data = $this->controller->$Auth->hashPasswords($data);
-			}*/
-			
-			return (boolean) $this->controller->$Auth->login($data);
-		}
-		return false;
+		App::import('Controller/Component', 'AuthComponent');
+
+		$conditions = array(
+			'email' => $this->controller->request->data('username'),
+			'password' => AuthComponent::password($this->controller->request->data('password'))
+		);
+
+		$user = $this->controller->User->find('first', $conditions);
+
+		// Checks if user exists
+		if (empty($user)) return false;
+
+		// Checks if user has a client configured
+		$conditions = array(
+			'user_id' => $user['User']['id'],
+			'id' => $client_id,
+			'active' => 1
+		);
+
+		return (boolean) $this->controller->OAuth2ServerClient->find('first', compact('conditions'));
+
 	}
 
 	/**
@@ -269,9 +272,14 @@ class OAuth2Lib extends OAuth2 {
 	 */
 	public function getTokenUser($field) {
 		$token = $this->getToken();
+		
+		debug($token);
+		
+		die();
+		
 		if ($token !== null && !empty($token['username'])) {
 
-			throw new Exception("Function still relies in absolete method loadModel", 1);
+			throw new Exception("Function still relies in obsolete method loadModel", 1);
 			$this->loadModel('User');
 			return $this->User->field($field, array(
 			  Configure::read('OAuth2Server.Auth.fields.username') => $token['username']

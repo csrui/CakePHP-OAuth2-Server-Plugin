@@ -4,7 +4,8 @@ class OAuth2ServerController extends OAuth2ServerAppController {
 	public $uses = array(
 		'OAuth2Server.OAuth2ServerClient',
 		'OAuth2Server.OAuth2ServerCode',
-		'OAuth2Server.OAuth2ServerToken'
+		'OAuth2Server.OAuth2ServerToken',
+		'User'
 	);
 
 	/**

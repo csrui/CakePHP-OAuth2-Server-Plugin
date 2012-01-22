@@ -1,6 +1,6 @@
 <?php
 echo
-	$this->Form->create(false, array('type' => 'POST', 'url' => '/oauth/authorize')) .
+	$this->Form->create('User', array('type' => 'POST', 'url' => '/oauth/authorize')) .
 	$this->Form->inputs(array(
 		'legend' => __('User login'),
 		'client_id' => array(
